@@ -48,16 +48,28 @@ final class BookController extends AbstractController
 
              return $this->json([
                 'message'=>'Livre créé avec succès','data'=>$book ],
-                      201,['groups'=>'book:read']);
+                     status: 201,context:['groups'=>'book:read']);
 
-        //    return $this->json([
-        //     'message' => 'Livre créé avec succès',
-        //     'data' => $book
-        // ], 201, [], ['groups' => 'book:read']);                      
+                    
     }
     catch(\Exception $e)
     {
            return $this->json(['message'=>'Données invalides','error'=>$e->getMessage()],status:400);     
     }
  }
+
+#[route('/books/{id}',name:'book_update',methods:['PATCH'])]
+public function update(Request $request,Book $book,int $id)
+{
+   try{ 
+   $this->serializer->deserialize($request->getContent(),Book::class,'json',['object_to_populate'=>$book]);
+    $this->entityManager->flush();
+    return $this->json(['message'=>"l \'objet avec un id $id a bien ete mis a jour",'data'=>$book],status:201,context:['book:read']);
+   }
+   catch(\Exception $e)
+   {
+      return $this->json(['message'=>'les donnees sont invalides','error'=>$e->getMessage()],status:400);
+   }
+
+}
 }
