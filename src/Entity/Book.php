@@ -2,11 +2,28 @@
 
 namespace App\Entity;
 
+use ApiPlatform\Metadata\ApiResource;
+use ApiPlatform\Metadata\Get;
+use ApiPlatform\Metadata\GetCollection;
+use ApiPlatform\Metadata\Patch;
+use ApiPlatform\Metadata\Post;
+use ApiPlatform\Metadata\Delete;
+
+
 use App\Repository\BookRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 
 #[ORM\Entity(repositoryClass: BookRepository::class)]
+#[ApiResource(
+    operations: [
+        new Get(normalizationContext: ['groups' => ['book:read']]),
+        new GetCollection(normalizationContext: ['groups' => ['book:read']]),
+        new Post(denormalizationContext: ['groups' => ['book:write']]),
+        new Patch(denormalizationContext: ['groups' => ['book:write']]),
+        new Delete(),
+    ]
+)]
 class Book
 {
     #[ORM\Id]
@@ -16,11 +33,11 @@ class Book
     private ?int $id = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['book:read'])]
+    #[Groups(['book:read','book:write'])]
     private ?string $title = null;
 
     #[ORM\Column(length: 255)]
-    #[Groups(['book:read'])]
+    #[Groups(['book:read','book:write'])]
     private ?string $author = null;
 
     public function getId(): ?int
