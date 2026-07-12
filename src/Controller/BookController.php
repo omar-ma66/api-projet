@@ -39,7 +39,7 @@ final class BookController extends AbstractController
 
  }
  #[route('/books',name:'books_new',methods:['POST'])]
- public function create(Request $request)
+ public function create(Request $request):JsonResponse
  {
     try{
          $book =   $this->serializer->deserialize($request->getContent(),Book::class,'json');
@@ -59,7 +59,7 @@ final class BookController extends AbstractController
  }
 
 #[route('/books/{id}',name:'book_update',methods:['PATCH'])]
-public function update(Request $request,Book $book,int $id)
+public function update(Request $request,Book $book,int $id):JsonResponse
 {
    try{ 
    $this->serializer->deserialize($request->getContent(),Book::class,'json',['object_to_populate'=>$book]);
@@ -72,4 +72,22 @@ public function update(Request $request,Book $book,int $id)
    }
 
 }
+
+#[route('/books/{id}' , name:'book_delete',requirements:['id'=>'\d'],methods:['DELETE'])]
+public function delete(Book $book)
+{
+   try{
+      $this->entityManager->remove($book);
+      $this->entityManager->flush();
+      return $this->json(['message'=>'les données on bien été supprimées'],status:201,context:['book:read']);
+}
+catch(\Exception $e)
+{
+  return $this->json(['message'=>'suppression non réaliser','error'=>$e->getMessage()],status:400,context:['book:read']);
+}
+          
+}
+
+
+
 }
