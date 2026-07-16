@@ -9,13 +9,15 @@ use Symfony\Component\Routing\Attribute\Route;
 #[Route('/api', name: 'api_')]
 final class HomeController extends AbstractController
 {
-    #[Route('/hello', name: 'hello')]
+    #[Route('/home', name: 'api_home')]
 
-    public function hello(): JsonResponse
+    public function hello()
     {
       
-        return $this->json([
-            'message' => "Bienvenue sur l'API de BookMarket ! 🎉",
-        ]);
+        // return $this->json([
+        //     'message' => "Bienvenue sur l'API de BookMarket ! 🎉",
+        // ]);
+
+        return $this->render('home/home.html.twig');
     }
 }

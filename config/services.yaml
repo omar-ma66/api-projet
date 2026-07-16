@@ -8,7 +8,11 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
 
+# services:
 services:
+    # ...existing code...
+    App\DataPersister\UserDataPersister:
+        tags: ['api_platform.state_processor']
     # default configuration for services in *this* file
     _defaults:
         autowire: true      # Automatically injects dependencies in your services.
