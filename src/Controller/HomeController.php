@@ -24,10 +24,10 @@ final class HomeController extends AbstractController
     public function office()
     {
       
-        // return $this->json([
-        //     'message' => "Bienvenue sur l'API de BookMarket ! 🎉",
-        // ]);
+        return $this->json([
+            'message' => "Bienvenue sur l'API de BookMarket ! 🎉",
+        ]);
 
-        return $this->json(["message"=>"super ca marche"],status:200);
+        // return $this->json(["message"=>"super ca marche"],status:200);
     }
 }
