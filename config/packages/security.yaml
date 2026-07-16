@@ -44,6 +44,26 @@ security:
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
         # - { path: ^/profile, roles: ROLE_USER }
+        
+
+        # 1. On laisse l'accès public pour pouvoir se connecter et s'enregistrer
+        - { path: ^/api/login_check, roles: PUBLIC_ACCESS }
+        - { path: ^/api/register, roles: PUBLIC_ACCESS } 
+        - { path: ^/api/admin, roles: ROLE_ADMIN }
+        # Si vous avez une route d'inscription
+        
+        # 2. On bloque TOUT le reste sous /api pour les utilisateurs non connectés
+        - { path: ^/api/books, roles: IS_AUTHENTICATED_FULLY }
+      
+        
+    
+
+        # - { path: ^/api, roles: IS_AUTHENTICATED_FULLY }
+
+
+
+
+
 
 when@test:
     security:
