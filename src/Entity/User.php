@@ -2,11 +2,6 @@
 
 namespace App\Entity;
 
-// use App\Repository\UserRepository;
-// use Doctrine\ORM\Mapping as ORM;
-// use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
-// use Symfony\Component\Security\Core\User\UserInterface;
-
 
 
 use ApiPlatform\Metadata\ApiResource;
@@ -14,6 +9,8 @@ use ApiPlatform\Metadata\Post;
 use App\DataPersister\UserDataPersister;
 // use App\State\UserProcessor;
 use App\Repository\UserRepository;
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Attribute\Groups;
 use Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface;
@@ -68,6 +65,19 @@ class User implements UserInterface, PasswordAuthenticatedUserInterface
      */
     #[Groups(['user:write'])] // Permet de recevoir le mot de passe en clair depuis le JSON
     private ?string $plainPassword = null;
+
+    /**
+     * @var Collection<int, Book>
+     */
+    #[ORM\OneToMany(targetEntity: Book::class, mappedBy: 'user')]
+    private Collection $books;
+
+    public function __construct()
+    {
+        $this->books = new ArrayCollection();
+    }
+
+
 
 
     public function getId(): ?int
@@ -168,4 +178,37 @@ public function getPlainPassword(): ?string
 
         return $data;
     }
+
+    /**
+     * @return Collection<int, Book>
+     */
+    public function getBooks(): Collection
+    {
+        return $this->books;
+    }
+
+    public function addBook(Book $book): static
+    {
+        if (!$this->books->contains($book)) {
+            $this->books->add($book);
+            $book->setUser($this);
+        }
+
+        return $this;
+    }
+
+    public function removeBook(Book $book): static
+    {
+        if ($this->books->removeElement($book)) {
+            // set the owning side to null (unless already changed)
+            if ($book->getUser() === $this) {
+                $book->setUser(null);
+            }
+        }
+
+        return $this;
+    }
+
+   
+
 }

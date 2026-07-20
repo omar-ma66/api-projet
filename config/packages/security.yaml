@@ -64,7 +64,7 @@ security:
         # Si vous avez une route d'inscription
         
         # 2. On bloque TOUT le reste sous /api pour les utilisateurs non connectés
-        - { path: ^/api/books, roles: IS_AUTHENTICATED_FULLY }
+        # - { path: ^/api/books, roles: IS_AUTHENTICATED_FULLY }
       
         
        

@@ -8,8 +8,7 @@ use ApiPlatform\Metadata\GetCollection;
 use ApiPlatform\Metadata\Patch;
 use ApiPlatform\Metadata\Post;
 use ApiPlatform\Metadata\Delete;
-
-
+use App\DataPersister\BookDataPersister;
 use App\Repository\BookRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -19,11 +18,25 @@ use Symfony\Component\Serializer\Attribute\Groups;
 #[ORM\Entity(repositoryClass: BookRepository::class)]
 #[ApiResource(
     operations: [
-        new Get(normalizationContext: ['groups' => ['book:read']]),
-        new GetCollection(normalizationContext: ['groups' => ['book:read']]),
-        new Post(denormalizationContext: ['groups' => ['book:write']]),
-        new Patch(denormalizationContext: ['groups' => ['book:write']]),
-        new Delete(),
+        new Get(normalizationContext: ['groups' => ['book:read']],
+            security:"is_granted('PUBLIC_ACCESS') "),
+
+        new GetCollection(normalizationContext: ['groups' => ['book:read']],
+            security:"is_granted('PUBLIC_ACCESS')"),
+
+        new Post(denormalizationContext: ['groups' => ['book:write']],
+            security:"is_granted('ROLE_USER')",
+            processor: BookDataPersister::class,
+            securityMessage: "Seuls les utilisateurs connectés peuvent créer des livres"),
+        
+        new Patch(denormalizationContext: ['groups' => ['book:write']],
+            security:"is_granted('BOOK_EDIT')",
+            securityMessage:"Vous ne pouvez modifier que vos propres livres"),
+        
+        new Delete(
+            security:"is_granted('BOOK_DELETE',object)",
+            securityMessage:"Vous ne pouvez supprimer que vos propres livres"
+         ),
     ]
 )]
 class Book
@@ -49,9 +62,17 @@ class Book
     #[Groups(['book:read', 'book:write'])]
     private Collection $categories;
 
+    #[ORM\ManyToOne(inversedBy: 'books')]
+    private ?User $user = null;
+
+    
+
+
     public function __construct()
     {
         $this->categories = new ArrayCollection();
+      
+     
     }
 
     
@@ -108,6 +129,18 @@ class Book
         if ($this->categories->removeElement($category)) {
             $category->removeBook($this);
         }
+
+        return $this;
+    }
+
+    public function getUser(): ?User
+    {
+        return $this->user;
+    }
+
+    public function setUser(?User $user): static
+    {
+        $this->user = $user;
 
         return $this;
     }
